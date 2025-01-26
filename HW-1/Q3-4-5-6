@@ -1,0 +1,76 @@
+--q3 
+SELECT
+    COUNT(1) AS "up_to_1_mile"
+FROM green
+WHERE trip_distance <= 1
+  AND lpep_pickup_datetime >= '2019-10-01' 
+  AND lpep_pickup_datetime < '2019-11-01';
+
+SELECT
+    COUNT(1) AS "between_1_and_3_miles"
+FROM green
+WHERE trip_distance > 1 
+  AND trip_distance <= 3
+  AND lpep_pickup_datetime >= '2019-10-01' 
+  AND lpep_pickup_datetime < '2019-11-01';
+
+SELECT
+    COUNT(1) AS "between_3_and_7_miles"
+FROM green
+WHERE trip_distance > 3 
+  AND trip_distance <= 7
+  AND lpep_pickup_datetime >= '2019-10-01' 
+  AND lpep_pickup_datetime < '2019-11-01';
+
+SELECT
+    COUNT(1) AS "between_7_and_10_miles"
+FROM green
+WHERE trip_distance > 7 
+  AND trip_distance <= 10
+  AND lpep_pickup_datetime >= '2019-10-01' 
+  AND lpep_pickup_datetime < '2019-11-01';
+
+SELECT
+    COUNT(1) AS "over_10_miles"
+FROM green
+WHERE trip_distance > 10
+  AND lpep_pickup_datetime >= '2019-10-01' 
+  AND lpep_pickup_datetime < '2019-11-01';
+
+  -- ------------------------------------------------------------
+--q4 
+SELECT 
+    CAST(lpep_pickup_datetime AS DATE) AS trip_day,
+    MAX(trip_distance) AS max_trip_distance
+FROM green
+WHERE lpep_pickup_datetime >= '2019-10-01' 
+  AND lpep_pickup_datetime < '2019-11-01'
+GROUP BY CAST(lpep_pickup_datetime AS DATE)
+ORDER BY max_trip_distance DESC
+limit 1 ; -- to give me largest 
+
+
+--
+--Q5 
+SELECT 
+    z."Zone",
+    SUM(g."total_amount") AS "total"
+FROM green g
+JOIN zone z ON g."PULocationID" = z."LocationID"
+WHERE CAST (g.lpep_pickup_datetime AS DATE) = '2019-10-18'
+GROUP BY z."Zone"
+HAVING SUM(g."total_amount") > 13000
+ORDER BY SUM(g."total_amount") DESC;
+
+---
+-- Q6
+SELECT 
+    z."Zone" AS "drop_off_zone", 
+    MAX(g."tip_amount") AS "largest_tip"
+FROM green g
+JOIN zone z ON g."DOLocationID" = z."LocationID"
+WHERE g."PULocationID" = (SELECT "LocationID" FROM zone WHERE "Zone" = 'East Harlem North') 
+AND CAST(g.lpep_pickup_datetime AS DATE) BETWEEN '2019-10-01' AND '2019-10-31'
+GROUP BY z."Zone"
+ORDER BY "largest_tip" DESC
+;
